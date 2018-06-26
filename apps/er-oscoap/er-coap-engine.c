@@ -47,7 +47,7 @@
 #include <string.h>
 #include "er-coap-engine.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -436,6 +436,8 @@ PT_THREAD(coap_blocking_request
 
             if (res_block == state->block_num) {
                 request_callback(state->response);
+
+                printf("POWERTRACE HERE!!!!!!!\n");
 
                 ++(state->block_num);
             } else {

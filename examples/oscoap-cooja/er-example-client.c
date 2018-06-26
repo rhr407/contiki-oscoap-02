@@ -44,8 +44,10 @@
 #include "er-coap-engine.h"
 #include "dev/button-sensor.h"
 #include "er-oscoap.h"
+#include "powertrace.h"
 
-#define DEBUG 1
+
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -174,7 +176,7 @@ PROCESS_THREAD(er_example_client, ev, data)
 
                  printf("\n--Done--\n");
             */
-            printf("\n --Get test/hello-- \n");
+            PRINTF("\n --Get test/hello-- \n");
 
             coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
 
@@ -198,7 +200,7 @@ PROCESS_THREAD(er_example_client, ev, data)
             //request->ipaddr = &server_ipaddr;
             char token[] = { 0x05, 0x05};
             coap_set_token(request, token, 2);
-            printf("--Requesting %s--\n", service_urls[4]);
+            PRINTF("--Requesting %s--\n", service_urls[4]);
 
             PRINT6ADDR(&server_ipaddr);
             PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
@@ -206,7 +208,8 @@ PROCESS_THREAD(er_example_client, ev, data)
             COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
                                   client_chunk_handler);
 
-            printf("\n--Done--\n");
+            powertrace_print("Client-Energy:");
+            PRINTF("\n--Done--\n");
 
             etimer_reset(&et);
 
@@ -218,7 +221,7 @@ PROCESS_THREAD(er_example_client, ev, data)
             coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
             coap_set_header_uri_path(request, service_urls[uri_switch]);
 
-            printf("--Requesting %s--\n", service_urls[uri_switch]);
+            PRINTF("--Requesting %s--\n", service_urls[uri_switch]);
 
             PRINT6ADDR(&server_ipaddr);
             PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
@@ -226,7 +229,7 @@ PROCESS_THREAD(er_example_client, ev, data)
             COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
                                   client_chunk_handler);
 
-            printf("\n--Done--\n");
+            PRINTF("\n--Done--\n");
 
             uri_switch = (uri_switch + 1) % NUMBER_OF_URLS;
 #endif

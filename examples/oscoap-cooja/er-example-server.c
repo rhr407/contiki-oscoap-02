@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2013, Institute for Pervasive Computing, ETH Zurich
  * All rights reserved.
@@ -49,7 +50,7 @@
 #include "dev/button-sensor.h"
 #endif
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)

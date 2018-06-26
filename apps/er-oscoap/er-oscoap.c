@@ -42,7 +42,7 @@ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <inttypes.h>
 #include <sys/types.h>
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
@@ -93,7 +93,7 @@ size_t oscoap_prepare_external_aad(coap_packet_t* coap_pkt, uint8_t* buffer, uin
     ret += OPT_CBOR_put_unsigned(&buffer, (coap_pkt->code)); //COAP code is one byte //TODO should be
     ret += OPT_CBOR_put_unsigned(&buffer, (coap_pkt->context->ALG));
 
-//TODO The sequence numbers are wrong for external AAD when receiving requests
+    //TODO The sequence numbers are wrong for external AAD when receiving requests
 
     if (coap_is_request(coap_pkt)) {
 
@@ -178,7 +178,7 @@ uint8_t oscoap_validate_receiver_seq(OSCOAP_COMMON_CONTEXT* ctx, opt_cose_encryp
 /* Compose the nonce by XORing the static IV (Client Write IV) with
    the Partial IV parameter, received in the COSE Object.   */
 void create_iv(uint8_t* iv, uint8_t* out, uint8_t* seq, int seq_len ) {
-//TODO fix usage of magic numbers and add support for longer seq
+    //TODO fix usage of magic numbers and add support for longer seq
     out[0] = iv[0];
     out[1] = iv[1];
     out[2] = iv[2];
@@ -211,7 +211,7 @@ size_t oscoap_prepare_message(void* packet, uint8_t *buffer) {
         PRINTF("ERROR: NO CONTEXT IN PREPARE MESSAGE!\n");
         return 0;
     }
-    uint8_t plaintext_buffer[50]; //TODO, workaround this to decrease memory footprint
+    uint8_t plaintext_buffer[50] = {0x00, 0x01, 0x02, 0x03,0x04,0x05, 0x05}; //TODO, workaround this to decrease memory footprint
     memset(plaintext_buffer, 0, 50);
 
     //Serialize options and payload
@@ -239,15 +239,15 @@ size_t oscoap_prepare_message(void* packet, uint8_t *buffer) {
 
     //TDOD FIX 1 and 0 to proper defined constants
     if (coap_is_request(coap_pkt)) {
-        PRINTF("we have a request!\n");
+        PRINTF("we have a request to make!\n");
         external_aad_size = oscoap_prepare_external_aad(coap_pkt, external_aad_buffer, 1, NULL, 0);
 
     } else {
-        PRINTF("we have a response!\n");
+        PRINTF("we have a response to send!\n");
         external_aad_size = oscoap_prepare_external_aad(coap_pkt, external_aad_buffer, 1, NULL, 0);
     }
-// printf("external aad \n");
-// oscoap_printf_hex(external_aad_buffer, external_aad_size);
+    // printf("external aad \n");
+    // oscoap_printf_hex(external_aad_buffer, external_aad_size);
 
 
     OPT_COSE_SetExternalAAD(&cose, external_aad_buffer, external_aad_size);
@@ -350,7 +350,7 @@ coap_status_t oscoap_decode_packet(coap_packet_t* coap_pkt) {
         PRINTF("we have a incomming response!\n");
         external_aad_size = oscoap_prepare_external_aad(coap_pkt, external_aad_buffer, 0, cose.partial_iv, cose.partial_iv_len );
     }
-    printf("external aad\n");
+    PRINTF("external aad\n");
     oscoap_printf_hex(external_aad_buffer, external_aad_size);
 
     OPT_COSE_SetExternalAAD(&cose, external_aad_buffer, external_aad_size);
@@ -450,8 +450,8 @@ size_t oscoap_prepare_plaintext(void* packet, uint8_t* plaintext_buffer) {
         coap_pkt->buffer = original_buffer;
         return 4;
     }
-//TODO fix this so we dont make uneccesary wirites
-//Set Token
+    //TODO fix this so we dont make uneccesary wirites
+    //Set Token
     PRINTF("Token (len %u)", coap_pkt->token_len);
     option = coap_pkt->buffer; // + COAP_HEADER_LEN-2; //TODO, fixa OSCOAP_HEADER_LEN
     for (current_number = 0; current_number < coap_pkt->token_len;
@@ -479,7 +479,7 @@ size_t oscoap_prepare_plaintext(void* packet, uint8_t* plaintext_buffer) {
                               content_format /* hack to get a zero field */,
                               "If-None-Match");
     COAP_SERIALIZE_INT_OPTION(COAP_OPTION_OBSERVE, observe, "Observe");
-// COAP_SERIALIZE_INT_OPTION(COAP_OPTION_URI_PORT, uri_port, "Uri-Port");
+    // COAP_SERIALIZE_INT_OPTION(COAP_OPTION_URI_PORT, uri_port, "Uri-Port");
     COAP_SERIALIZE_STRING_OPTION(COAP_OPTION_LOCATION_PATH, location_path, '/',
                                  "Location-Path");
     COAP_SERIALIZE_STRING_OPTION(COAP_OPTION_URI_PATH, uri_path, '/',

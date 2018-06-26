@@ -46,6 +46,8 @@
 #include "er-coap-separate.h"
 #include "rest-engine.h"
 #include "er-plugtest.h"
+#include "powertrace.h"
+
 
 /*
  * Resources to be activated need to be imported through the extern keyword.

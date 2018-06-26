@@ -171,7 +171,7 @@ PROCESS_THREAD(er_example_observe_client, ev, data)
       etimer_reset(&et);
 #if PLATFORM_HAS_BUTTON
     } else if(ev == sensors_event && data == &button_sensor) {
-      printf("--Toggle tutton--\n");
+      printf("--Toggle Button--\n");
       toggle_observation();
       printf("\n--Done--\n");
 #endif
