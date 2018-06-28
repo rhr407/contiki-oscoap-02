@@ -45,6 +45,7 @@
 #include "dev/button-sensor.h"
 #include "er-oscoap.h"
 #include "powertrace.h"
+#include "sys/energest.h"
 
 
 #define DEBUG 0
@@ -52,6 +53,7 @@
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
 #define PRINT6ADDR(addr) PRINTF("[%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x:%02x%02x]", ((uint8_t *)addr)[0], ((uint8_t *)addr)[1], ((uint8_t *)addr)[2], ((uint8_t *)addr)[3], ((uint8_t *)addr)[4], ((uint8_t *)addr)[5], ((uint8_t *)addr)[6], ((uint8_t *)addr)[7], ((uint8_t *)addr)[8], ((uint8_t *)addr)[9], ((uint8_t *)addr)[10], ((uint8_t *)addr)[11], ((uint8_t *)addr)[12], ((uint8_t *)addr)[13], ((uint8_t *)addr)[14], ((uint8_t *)addr)[15])
+
 #define PRINTLLADDR(lladdr) PRINTF("[%02x:%02x:%02x:%02x:%02x:%02x]", (lladdr)->addr[0], (lladdr)->addr[1], (lladdr)->addr[2], (lladdr)->addr[3], (lladdr)->addr[4], (lladdr)->addr[5])
 #else
 #define PRINTF(...)
@@ -91,150 +93,150 @@ static int uri_switch = 0;
 void
 client_chunk_handler(void *response)
 {
-    const uint8_t *chunk;
+   const uint8_t *chunk;
 
-    int len = coap_get_payload(response, &chunk);
-    printf("|%.*s", len, (char *)chunk);
-    printf("\n");
+   int len = coap_get_payload(response, &chunk);
+   printf("|%.*s", len, (char *)chunk);
+   printf("\n");
 }
 
 PROCESS_THREAD(er_example_client, ev, data)
 {
-    PROCESS_BEGIN();
+   PROCESS_BEGIN();
 
-    static coap_packet_t request[1];      /* This way the packet can be treated as pointer as usual. */
+   static coap_packet_t request[1];      /* This way the packet can be treated as pointer as usual. */
 
-    SERVER_NODE(&server_ipaddr);
+   SERVER_NODE(&server_ipaddr);
 
-    /* receives all CoAP messages */
-    coap_init_engine();
-    PRINTF("uIP buffer: %u\n", UIP_BUFSIZE);
-    PRINTF("LL header: %u\n", UIP_LLH_LEN);
-    PRINTF("IP+UDP header: %u\n", UIP_IPUDPH_LEN);
-    PRINTF("REST max chunk: %u\n", REST_MAX_CHUNK_SIZE);
-
-#if PLATFORM_HAS_BUTTON
-    SENSORS_ACTIVATE(button_sensor);
-    printf("Press a button to request %s\n", service_urls[uri_switch]);
-#endif
-
-    oscoap_ctx_store_init();
-
-    //Interop
-    uint8_t cid[CONTEXT_ID_LEN] = { 0x4B, 0x65, 0x79, 0x23, 0x30};
-    char sender_key[] = {0xEB, 0x43, 0x09, 0x8A, 0x0F, 0x6F, 0x7B, 0x69, 0xCE, 0xDF, 0x29, 0xE0, 0x80, 0x50, 0x95, 0x82};
-    char sender_iv[] = {0x58, 0xF9, 0x1A, 0x5C, 0xDF, 0xF4, 0xF5};
-
-    char receiver_key[] =  {0xF8, 0x20, 0x1E, 0xD1, 0x5E, 0x10, 0x37, 0xBC, 0xAF, 0x69, 0x06, 0x07, 0x9A, 0xD3, 0x0B, 0x4F};
-    char receiver_iv[] =  {0xE8, 0x28, 0xA4, 0x79, 0xD0, 0x88, 0xC4};
-
-    char receiver_id[] = { 0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74 };
-    char sender_id[] = { 0x73, 0x65, 0x72, 0x76, 0x65, 0x72 };
-    if (oscoap_new_ctx( cid, sender_key, sender_iv, receiver_key, receiver_iv, sender_id, ID_LEN, receiver_id, ID_LEN, 64) == 0) {
-        printf("Error: Could not create new Context!\n");
-    }
-
-    OSCOAP_COMMON_CONTEXT* c = NULL;
-    uint8_t cid2[CONTEXT_ID_LEN] =  { 0x4B, 0x65, 0x79, 0x23, 0x30};
-    c = oscoap_find_ctx_by_cid(cid2);
-    PRINTF("COAP max size %d\n", COAP_MAX_PACKET_SIZE);
-    if (c == NULL) {
-        printf("could not fetch cid\n");
-    } else {
-        printf("Context sucessfully added to DB!\n");
-    }
-
-    printf("server ip poither %p\n", &server_ipaddr);
-
-    etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
+   /* receives all CoAP messages */
+   coap_init_engine();
+   PRINTF("uIP buffer: %u\n", UIP_BUFSIZE);
+   PRINTF("LL header: %u\n", UIP_LLH_LEN);
+   PRINTF("IP+UDP header: %u\n", UIP_IPUDPH_LEN);
+   PRINTF("REST max chunk: %u\n", REST_MAX_CHUNK_SIZE);
 
 #if PLATFORM_HAS_BUTTON
-    SENSORS_ACTIVATE(button_sensor);
-    printf("Press a button to request %s\n", service_urls[uri_switch]);
+   SENSORS_ACTIVATE(button_sensor);
+   printf("Press a button to request %s\n", service_urls[uri_switch]);
 #endif
 
-    while (1) {
-        PROCESS_YIELD();
+   oscoap_ctx_store_init();
 
+   //Interop
+   uint8_t cid[CONTEXT_ID_LEN] = { 0x4B, 0x65, 0x79, 0x23, 0x30};
+   char sender_key[] = {0xEB, 0x43, 0x09, 0x8A, 0x0F, 0x6F, 0x7B, 0x69, 0xCE, 0xDF, 0x29, 0xE0, 0x80, 0x50, 0x95, 0x82};
+   char sender_iv[] = {0x58, 0xF9, 0x1A, 0x5C, 0xDF, 0xF4, 0xF5};
 
-        if (etimer_expired(&et)) {
-            /*     printf("--Toggle timer--\n");
+   char receiver_key[] =  {0xF8, 0x20, 0x1E, 0xD1, 0x5E, 0x10, 0x37, 0xBC, 0xAF, 0x69, 0x06, 0x07, 0x9A, 0xD3, 0x0B, 0x4F};
+   char receiver_iv[] =  {0xE8, 0x28, 0xA4, 0x79, 0xD0, 0x88, 0xC4};
 
-                 // prepare request, TID is set by COAP_BLOCKING_REQUEST()
-                 coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
-                 coap_set_header_uri_path(request, service_urls[1]);
+   char receiver_id[] = { 0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74 };
+   char sender_id[] = { 0x73, 0x65, 0x72, 0x76, 0x65, 0x72 };
+   if (oscoap_new_ctx( cid, sender_key, sender_iv, receiver_key, receiver_iv, sender_id, ID_LEN, receiver_id, ID_LEN, 64) == 0) {
+      printf("Error: Could not create new Context!\n");
+   }
 
-                 const char msg[] = "Toggle!";
+   OSCOAP_COMMON_CONTEXT* c = NULL;
+   uint8_t cid2[CONTEXT_ID_LEN] =  { 0x4B, 0x65, 0x79, 0x23, 0x30};
+   c = oscoap_find_ctx_by_cid(cid2);
+   PRINTF("COAP max size %d\n", COAP_MAX_PACKET_SIZE);
+   if (c == NULL) {
+      printf("could not fetch cid\n");
+   } else {
+      printf("Context sucessfully added to DB!\n");
+   }
 
-                 coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+   printf("server ip poither %p\n", &server_ipaddr);
 
-                 PRINT6ADDR(&server_ipaddr);
-                 PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
-
-                 COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
-                                       client_chunk_handler);
-
-                 printf("\n--Done--\n");
-            */
-            PRINTF("\n --Get test/hello-- \n");
-
-            coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-
-            //TODO, this should be implemented using the uri -> cid map, not like this.
-            uint8_t cid3[CONTEXT_ID_LEN] = { 0x4B, 0x65, 0x79, 0x23, 0x30};
-            request->context = oscoap_find_ctx_by_cid(cid3);
-
-            coap_set_header_uri_path(request, service_urls[4]);
-
-            char* u_buffer;
-            int uri_len = coap_get_header_uri_path(request, &u_buffer);
-            char uri_host = "oscoap.test";
-            //int uri_host_len = coap_set_header_uri_host(request, &uri_host);
-            // printf("uri_host l %d\n", uri_host_len);
-            //char* uh;
-            //uri_host_len = coap_get_header_uri_host(request, &uh);
-            //printf("ubuf: %s\n",u_buffer);
-            //printf("uri-host %.*s\n",uri_host_len, uh);
-
-            coap_set_header_object_security(request);
-            //request->ipaddr = &server_ipaddr;
-            char token[] = { 0x05, 0x05};
-            coap_set_token(request, token, 2);
-            PRINTF("--Requesting %s--\n", service_urls[4]);
-
-            PRINT6ADDR(&server_ipaddr);
-            PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
-
-            COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
-                                  client_chunk_handler);
-
-            powertrace_print("Client-Energy:");
-            PRINTF("\n--Done--\n");
-
-            etimer_reset(&et);
+   etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
 
 #if PLATFORM_HAS_BUTTON
-        } else if (ev == sensors_event && data == &button_sensor) {
-
-            /* send a request to notify the end of the process */
-
-            coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
-            coap_set_header_uri_path(request, service_urls[uri_switch]);
-
-            PRINTF("--Requesting %s--\n", service_urls[uri_switch]);
-
-            PRINT6ADDR(&server_ipaddr);
-            PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
-
-            COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
-                                  client_chunk_handler);
-
-            PRINTF("\n--Done--\n");
-
-            uri_switch = (uri_switch + 1) % NUMBER_OF_URLS;
+   SENSORS_ACTIVATE(button_sensor);
+   printf("Press a button to request %s\n", service_urls[uri_switch]);
 #endif
-        }
-    }
 
-    PROCESS_END();
+   while (1) {
+      PROCESS_YIELD();
+
+
+      if (etimer_expired(&et)) {
+         /*     printf("--Toggle timer--\n");
+
+              // prepare request, TID is set by COAP_BLOCKING_REQUEST()
+              coap_init_message(request, COAP_TYPE_CON, COAP_POST, 0);
+              coap_set_header_uri_path(request, service_urls[1]);
+
+              const char msg[] = "Toggle!";
+
+              coap_set_payload(request, (uint8_t *)msg, sizeof(msg) - 1);
+
+              PRINT6ADDR(&server_ipaddr);
+              PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
+
+              COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
+                                    client_chunk_handler);
+
+              printf("\n--Done--\n");
+         */
+         PRINTF("\n --Get test/hello-- \n");
+
+         coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+
+         //TODO, this should be implemented using the uri -> cid map, not like this.
+         uint8_t cid3[CONTEXT_ID_LEN] = { 0x4B, 0x65, 0x79, 0x23, 0x30};
+         request->context = oscoap_find_ctx_by_cid(cid3);
+
+         coap_set_header_uri_path(request, service_urls[4]);
+
+         char* u_buffer;
+         int uri_len = coap_get_header_uri_path(request, &u_buffer);
+         char uri_host = "oscoap.test";
+         //int uri_host_len = coap_set_header_uri_host(request, &uri_host);
+         // printf("uri_host l %d\n", uri_host_len);
+         //char* uh;
+         //uri_host_len = coap_get_header_uri_host(request, &uh);
+         //printf("ubuf: %s\n",u_buffer);
+         //printf("uri-host %.*s\n",uri_host_len, uh);
+
+         coap_set_header_object_security(request);
+         //request->ipaddr = &server_ipaddr;
+         char token[] = { 0x05, 0x05};
+         coap_set_token(request, token, 2);
+         PRINTF("--Requesting %s--\n", service_urls[4]);
+
+         PRINT6ADDR(&server_ipaddr);
+         PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
+
+         COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
+                               client_chunk_handler);
+
+         powertrace_print("Client-Energy:");
+         PRINTF("\n--Done--\n");
+
+         etimer_reset(&et);
+
+#if PLATFORM_HAS_BUTTON
+      } else if (ev == sensors_event && data == &button_sensor) {
+
+         /* send a request to notify the end of the process */
+
+         coap_init_message(request, COAP_TYPE_CON, COAP_GET, 0);
+         coap_set_header_uri_path(request, service_urls[uri_switch]);
+
+         PRINTF("--Requesting %s--\n", service_urls[uri_switch]);
+
+         PRINT6ADDR(&server_ipaddr);
+         PRINTF(" : %u\n", UIP_HTONS(REMOTE_PORT));
+
+         COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
+                               client_chunk_handler);
+
+         PRINTF("\n--Done--\n");
+
+         uri_switch = (uri_switch + 1) % NUMBER_OF_URLS;
+#endif
+      }
+   }
+
+   PROCESS_END();
 }

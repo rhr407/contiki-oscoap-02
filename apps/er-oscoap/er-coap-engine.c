@@ -437,7 +437,7 @@ PT_THREAD(coap_blocking_request
             if (res_block == state->block_num) {
                 request_callback(state->response);
 
-                printf("POWERTRACE HERE!!!!!!!\n");
+                // printf("POWERTRACE HERE!!!!!!!\n");
 
                 ++(state->block_num);
             } else {
