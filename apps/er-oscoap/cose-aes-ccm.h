@@ -38,9 +38,9 @@
  *         Generified version: Justin King-Lacroix <justin.kinglacroix@gmail.com>
  */
 
- /*
-      Modified for OSCOAP test implementation by: Martin Gunnarsson martin.gunnarsson@sics.se
-    */
+/*
+     Modified for OSCOAP test implementation by: Martin Gunnarsson martin.gunnarsson@sics.se
+   */
 
 #ifndef COSE_AES_CCM_H_
 #define COSE_AES_CCM_H_
@@ -59,27 +59,28 @@
  * Structure of CCM* drivers.
  */
 struct cose_aes_ccm_driver {
-  
-  /**
-   * \brief         Sets the key in use. Default implementation calls AES_128.set_key().
-   * \param key     The key to use.
-   */
-  void (* set_key)(const uint8_t* key);
-  
-  /**
-   * \brief         Combines authentication and encryption.
-   * \param nonce   The nonce to use. CCM_STAR_NONCE_LENGTH bytes long.
-   * \param m       message to encrypt or decrypt
-   * \param a       Additional authenticated data
-   * \param result  The generated MIC will be put here
-   * \param mic_len The size of the MIC to be generated. <= 16.
-   * \param forward != 0 if used in forward direction.
-   */
-  void (* aead)(const uint8_t* nonce,
-      uint8_t* m, uint8_t m_len,
-      const uint8_t* a, uint8_t a_len,
-      uint8_t *result, uint8_t mic_len,
-      int forward);
+
+   /**
+    * \brief         Sets the key in use. Default implementation calls AES_128.set_key().
+    * \param key     The key to use.
+    */
+   void (* set_key)(const uint8_t* key);
+
+   /**
+    * \brief         Combines authentication and encryption.
+    * \param nonce   The nonce to use. CCM_STAR_NONCE_LENGTH bytes long.
+    * \param m       message to encrypt or decrypt
+    * \param a       Additional authenticated data
+    * \param result  The generated MIC will be put here
+    * \param mic_len The size of the MIC to be generated. <= 16.
+    * \param forward != 0 if used in forward direction.
+    */
+   void (* aead)(const uint8_t* nonce,
+                 uint8_t* m, uint8_t m_len,
+                 const uint8_t* a, uint8_t a_len,
+                 uint8_t *result, uint8_t mic_len,
+                 int forward);
+
 };
 
 extern const struct cose_aes_ccm_driver COSE_AES_CCM;

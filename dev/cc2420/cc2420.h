@@ -56,8 +56,8 @@ int cc2420_set_channel(int channel);
 int cc2420_get_channel(void);
 
 void cc2420_set_pan_addr(unsigned pan,
-                                unsigned addr,
-                                const uint8_t *ieee_addr);
+                         unsigned addr,
+                         const uint8_t *ieee_addr);
 
 extern signed char cc2420_last_rssi;
 extern uint8_t cc2420_last_correlation;
@@ -82,7 +82,7 @@ int cc2420_interrupt(void);
 
 /* XXX hack: these will be made as Chameleon packet attributes */
 extern rtimer_clock_t cc2420_time_of_arrival,
-  cc2420_time_of_departure;
+       cc2420_time_of_departure;
 extern int cc2420_authority_level_of_sender;
 
 int cc2420_on(void);
@@ -91,5 +91,7 @@ int cc2420_off(void);
 void cc2420_set_cca_threshold(int value);
 
 extern const struct aes_128_driver cc2420_aes_128_driver;
+
+
 
 #endif /* CC2420_H_ */

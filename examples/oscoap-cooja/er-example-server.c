@@ -177,7 +177,7 @@ PROCESS_THREAD(er_example_server, ev, data)
     char sender_id[] = { 0x63, 0x6C, 0x69, 0x65, 0x6E, 0x74 };
     char receiver_id[] = { 0x73, 0x65, 0x72, 0x76, 0x65, 0x72 };
     if (oscoap_new_ctx( cid, sender_key, sender_iv, receiver_key, receiver_iv, sender_id, ID_LEN, receiver_id, ID_LEN, 64) == 0) {
-        printf("Error: Could not create new Context!\n");
+        // printf("Error: Could not create new Context!\n");
     }
 
 

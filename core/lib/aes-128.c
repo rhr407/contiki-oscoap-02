@@ -98,19 +98,16 @@ set_key(const uint8_t *key)
       }
       rcon = galois_mul2(rcon);
    }
-
    ENERGEST_OFF(ENERGEST_TYPE_setKeySW);
 }
 /*---------------------------------------------------------------------------*/
 static void
 encrypt(uint8_t *state)
 {
-   // ENERGEST_ON(ENERGEST_TYPE_encryptSW);
-   // ENERGEST_OFF(ENERGEST_TYPE_encryptSW);
+
+   ENERGEST_ON(ENERGEST_TYPE_encryptSW);
 
    uint8_t buf1, buf2, buf3, buf4, round, i;
-
-
 
    /* round 0 */
    /* AddRoundKey */
@@ -175,7 +172,7 @@ encrypt(uint8_t *state)
          state[i] = state[i] ^ round_keys[round][i];
       }
    }
-   // ENERGEST_OFF(ENERGEST_TYPE_encryptSW);
+   ENERGEST_OFF(ENERGEST_TYPE_encryptSW);
 
 }
 /*---------------------------------------------------------------------------*/

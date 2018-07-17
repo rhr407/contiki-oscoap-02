@@ -54,4 +54,7 @@ void powertrace_sniff(powertrace_onoff_t onoff);
 
 void powertrace_print(char *str);
 
+void powertrace_print_mine(char *str);
+
+
 #endif /* POWERTRACE_H */

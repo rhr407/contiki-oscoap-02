@@ -439,6 +439,9 @@ PT_THREAD(coap_blocking_request
 
                 // printf("POWERTRACE HERE!!!!!!!\n");
 
+                powertrace_print_mine("Energy-Client");
+
+
                 ++(state->block_num);
             } else {
                 PRINTF("WRONG BLOCK %lu/%lu\n", res_block, state->block_num);

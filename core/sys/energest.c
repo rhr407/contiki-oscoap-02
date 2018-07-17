@@ -107,7 +107,7 @@ energest_flush(void)
     if(energest_current_mode[i]) {
       now = RTIMER_NOW();
       energest_total_time[i].current += (rtimer_clock_t)
-	(now - energest_current_time[i]);
+  (now - energest_current_time[i]);
       energest_current_time[i] = now;
     }
   }

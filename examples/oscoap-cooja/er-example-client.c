@@ -47,6 +47,10 @@
 #include "powertrace.h"
 #include "sys/energest.h"
 
+#include "dev/leds.h"
+
+
+
 
 #define DEBUG 0
 #if DEBUG
@@ -65,8 +69,7 @@
 //#define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xfe80, 0, 0, 0, 0x0212, 0x7402, 0x0002, 0x0202)      /* cooja2 */
 /* #define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xbbbb, 0, 0, 0, 0, 0, 0, 0x1) */
 
-//#define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xfe80, 0, 0, 0, 0xc30c, 0, 0, 0x0001)      /* */
-#define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xfe80, 0, 0, 0, 0xc30c, 0, 0, 0x0002)      /* */
+#define SERVER_NODE(ipaddr)   uip_ip6addr(ipaddr, 0xfe80, 0, 0, 0, 0xc30c, 0, 0, 0x0004)      /* */
 
 
 #define LOCAL_PORT      UIP_HTONS(COAP_DEFAULT_PORT + 1)
@@ -146,7 +149,7 @@ PROCESS_THREAD(er_example_client, ev, data)
       printf("Context sucessfully added to DB!\n");
    }
 
-   printf("server ip poither %p\n", &server_ipaddr);
+   printf("server ip pointer %p\n", &server_ipaddr);
 
    etimer_set(&et, TOGGLE_INTERVAL * CLOCK_SECOND);
 
@@ -157,6 +160,8 @@ PROCESS_THREAD(er_example_client, ev, data)
 
    while (1) {
       PROCESS_YIELD();
+
+      // leds_on(LEDS_GREEN);
 
 
       if (etimer_expired(&et)) {
@@ -210,7 +215,7 @@ PROCESS_THREAD(er_example_client, ev, data)
          COAP_BLOCKING_REQUEST(&server_ipaddr, REMOTE_PORT, request,
                                client_chunk_handler);
 
-         powertrace_print("Client-Energy:");
+         // powertrace_print_mine();
          PRINTF("\n--Done--\n");
 
          etimer_reset(&et);
